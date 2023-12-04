@@ -1,23 +1,22 @@
 pipeline {
 	agent any
 
+    tools {
+        maven 'maven_3_9_5'
+    }
+
 	stages {
 
-		stage('Build'){
+		stage('Build Maven'){
 			steps {
-				sh "mvn clean install -DskipTests"
+				checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://gitlab.com/hieutran249/cicd-demo.git']])
+				sh 'mvn clean install'
 			}
 		}
 
-		stage('Test'){
-			steps{
-				sh "mvn test"
-			}
-		}
-
-		stage('Deploy') {
+		stage('Build Docker Image') {
 			steps {
-			    sh "mvn jar:jar deploy:deploy"
+				sh 'docker build -t cicd-demo .'
 			}
 		}
 	}
